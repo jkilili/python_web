@@ -1,6 +1,7 @@
 
 import json,logging,sys,datetime
 
+""" 暂时还没有用到"""
 class BaseLog():
     def __init__(self, name, message, user, *args, **kwargs):
         self.name = name
