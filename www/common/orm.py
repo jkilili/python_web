@@ -385,8 +385,14 @@ class Model(dict, metaclass=ModelMetaclass):
 
     async def insert(self, **kw):
         params = {}
-        
+        temp_i = 0
+        list_k = list(kw.keys())
         #赋值
+        while temp_i < len(list_k):
+            if list_k[temp_i] not in self.__fields__:
+                kw.pop(list_k[temp_i])
+            temp_i = temp_i + 1
+
         for k, v in kw.items():
             if not hasattr(self, k):
                 setattr(self, k, v)
@@ -410,6 +416,13 @@ class Model(dict, metaclass=ModelMetaclass):
         return rows
 
     async def update(self, **kw):
+        temp_i = 0
+        list_k = list(kw.keys())
+        #赋值
+        while temp_i < len(list_k):
+            if list_k[temp_i] not in self.__fields__:
+                kw.pop(list_k[temp_i])
+            temp_i = temp_i + 1
         #赋值
         for k, v in kw.items():
             if not hasattr(self, k):

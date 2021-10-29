@@ -69,8 +69,6 @@ async def user_add(request, *, user_name, password, re_password):
         raise APIValueError('确认密码','不能为空')
     if str(re_password) != str(password):
         raise APIValueError('确认密码','确认密码和密码不一致')
-    if hasattr(req, 're_password'):
-        req.pop('re_password')
     result = await services().add(**req)
     return  APIResp(result)
 

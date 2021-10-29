@@ -16,7 +16,7 @@ class UserServices():
         query = " where `is_deleted` = 0 and `user_name` = '%s' and  `password` = '%s' "%(name, paswd)
         data = await SysUsers.find_first(where=query)
         if data is None:
-            raise APIError('登录失败','登录','用户名不存在')
+            raise APIError('登录失败','','用户名不存在')
         RedisManage().set_str(data['user_name'], data);
         token = create_token(data['id'], data['user_name'])
         return token
@@ -62,7 +62,7 @@ class UserServices():
     async def add(self,**kw):
         user = await SysUsers.find_first(' where `user_name` = ? ',kw.get('user_name'))
         if user:
-            raise APIError('注册用户失败', '用户名', '用户名已经存在')
+            raise APIError('注册用户失败', '', '用户名已经存在')
 
         data = SysUsers(id=next_id(), is_deleted = 0, creator='sys', create_name ='sys', password = sha1Util(kw.get('user_name'), kw.get('password')).encrypt() )
         if kw is None or len(kw) == 0:

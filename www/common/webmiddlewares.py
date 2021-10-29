@@ -31,12 +31,12 @@ async def data_factory(app, handler):
 @asyncio.coroutine
 async def auth_factory(app, handler):
     async def is_auth(request):
-        try:
-            """ 判断路由 验证登录 """
-            login_router_list = ['/login']#跳过验证的路由
-            if request.path in login_router_list:
-                return await handler(request)
-            else:
+        """ 判断路由 验证登录 """
+        login_router_list = ['/login']#跳过验证的路由
+        if request.path in login_router_list:
+            return await handler(request)
+        else:
+            try:
                 token = request.headers.get('Authorization')
                 if token and token.startswith('Bearer'):
                     token = token[7:]
@@ -57,7 +57,6 @@ async def auth_factory(app, handler):
                         request.__token__ = msg
                         """ 验证权限 """
                         # TODO
-
                     else:
                         r = dict(data=None, message= msg, status = code, code = _RESPONSE_STATUSES[401] )
                         resp = web.Response(body=json.dumps(r, ensure_ascii=False, default=None, cls = jsonConverter).encode('utf-8'),)
@@ -66,12 +65,11 @@ async def auth_factory(app, handler):
                 else:
                     payload = {}
                     raise web.HTTPUnauthorized()
-
+            except Exception as ex:
+                logging.error('验证token失败%s'%ex)
+                raise web.HTTPUnauthorized()
+    
             return await handler(request)
-        except Exception as ex:
-            logging.error('验证token失败%s'%ex)
-            raise web.HTTPUnauthorized()
-
     return is_auth
 
 @asyncio.coroutine
