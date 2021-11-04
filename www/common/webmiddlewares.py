@@ -1,16 +1,18 @@
 
-import asyncio, os, json, logging
+import asyncio, os, json
 from aiohttp import web
 from utils.helper import jsonConverter
 from utils.jwtUtil import validate_token
 from common.apis import Constant
 from common.httphandler import _RESPONSE_STATUSES
+from log import Log
 
 
 @asyncio.coroutine
 async def logger_factory(app, handler):
     async def logger(request):
-        logging.info('Request: %s %s' % (request.method, request.path))
+        #logging.info('Request: %s %s' % (request.method, request.path))
+        Log.info('Request: %s %s' % (request.method, request.path))
         # await asyncio.sleep(0.3)
         return (await handler(request))
     return logger
@@ -21,16 +23,17 @@ async def data_factory(app, handler):
         if request.method == 'POST':
             if request.content_type.startswith('application/json'):
                 request.__data__ = await request.json()
-                logging.info('request json: %s' % str(request.__data__))
+                Log.info('request json: %s' % str(request.__data__))
             elif request.content_type.startswith('application/x-www-form-urlencoded'):
                 request.__data__ = await request.post()
-                logging.info('request form: %s' % str(request.__data__))
+                Log.info('request form: %s' % str(request.__data__))
         return (await handler(request))
     return parse_data
 
 @asyncio.coroutine
 async def auth_factory(app, handler):
     async def is_auth(request):
+        #Log.info('登录')
         """ 判断路由 验证登录 """
         login_router_list = ['/login']#跳过验证的路由
         if request.path in login_router_list:
@@ -66,7 +69,7 @@ async def auth_factory(app, handler):
                     payload = {}
                     raise web.HTTPUnauthorized()
             except Exception as ex:
-                logging.error('验证token失败%s'%ex)
+                Log.error('验证token失败%s'%ex)
                 raise web.HTTPUnauthorized()
     
             return await handler(request)
@@ -76,7 +79,7 @@ async def auth_factory(app, handler):
 async def response_factory(app, handler):
     async def response(request):
         try:
-            logging.info('Response handler...')
+            Log.info('Response handler...')
             r = await handler(request)
             if isinstance(r, web.StreamResponse):
                 return r
@@ -111,5 +114,5 @@ async def response_factory(app, handler):
             resp.content_type = 'text/plain;charset=utf-8'
             return resp
         except Exception as ex:
-            logging.error('响应失败：'%( ex))
+            Log.error('响应失败：'%( ex))
     return response

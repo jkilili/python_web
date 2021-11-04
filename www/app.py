@@ -1,5 +1,5 @@
 
-import logging; logging.basicConfig(level=logging.INFO)
+#import logging; logging.basicConfig(level=logging.INFO)
 
 import asyncio, os, json, time, base64
 from datetime import datetime
@@ -7,6 +7,7 @@ from datetime import datetime
 from aiohttp import web
 
 from jinja2 import Environment, FileSystemLoader
+from log import Log,create_logger
  
 import config as conf
 import common.orm as orm
@@ -15,7 +16,7 @@ from common.coroweb import add_routes, add_static
 from cryptography import fernet
 
 def init_jinja2(app, **kw):
-    logging.info('init jinja2...')
+    Log.info('init jinja2...')
     options = dict(
         autoescape = kw.get('autoescape', True),
         block_start_string = kw.get('block_start_string', '{%'),
@@ -27,7 +28,7 @@ def init_jinja2(app, **kw):
     path = kw.get('path', None)
     if path is None:
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-    logging.info('set jinja2 template path: %s' % path)
+    Log.info('set jinja2 template path: %s' % path)
     env = Environment(loader=FileSystemLoader(path), **options)
     filters = kw.get('filters', None)
     if filters is not None:
@@ -54,10 +55,12 @@ def index(request):
 @asyncio.coroutine
 async def init(loop):
     try:
-        logging.info("server init...")
+        create_logger()
+
+        Log.info("server init...")
         db = conf.configs['db'];
         
-        logging.info("init configs...")
+        Log.info("init configs...")
         fernet_key = fernet.Fernet.generate_key()
         secret_key = base64.urlsafe_b64decode(fernet_key)
 
@@ -75,7 +78,7 @@ async def init(loop):
         url = 'localhost'
         port = 8050
         srv = await loop.create_server(app.make_handler(),url, port)
-        logging.info("server started at http://"+url+":"+ str(port))
+        Log.info("server started at http://"+url+":"+ str(port))
         return srv
     except Exception as ex:
             print('服务启动失败')

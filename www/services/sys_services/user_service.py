@@ -1,11 +1,12 @@
 #sys_api.py
-import json,logging,sys,datetime
+import json,sys,datetime
 from models.sys import SysUsers, next_id
 from common.apis import Page, APIError, APIValueError, APIResourceNotFoundError,get_page_index
-from log import ErrorLog, InfoLog
 from utils.helper import gettime,sha1Util
 from utils.jwtUtil import create_token, validate_token
 from common.redis_manage import RedisManage
+from storage import globalVal
+from log import Log
 
 class UserServices():
 
@@ -18,6 +19,7 @@ class UserServices():
         if data is None:
             raise APIError('登录失败','','用户名不存在')
         RedisManage().set_str(data['user_name'], data);
+        globalVal.global_user = data;
         token = create_token(data['id'], data['user_name'])
         return token
 

@@ -1,8 +1,8 @@
 #jwtUtil.py
 import time
-import logging
 import jwt
 from jwt import exceptions
+from log import Log
 
 def create_token(id, name):
     global SECRET_KEY
@@ -67,7 +67,7 @@ class jwtUtil():
             print(jwt_token)
             return jwt_token
         except Exception as e:
-            logging.info('jwt encode error， %s ...' % e)
+            Log.error('jwt encode error， %s ...' % e)
 
     @classmethod
     def decode(cls, jt):
@@ -75,12 +75,12 @@ class jwtUtil():
             token = jwt.decode(jt, cls._key, algorithms = ['HS256'])
             return (1,token)
         except exceptions.ExpiredSignatureError as esx:
-            logging.error('token已失效')
+            Log.error('token已失效')
             return (2, 'token已失效')
         except jwt.DecodeError as dx:
-            logging.error('token认证失败')
+            Log.error('token认证失败')
             return (2, 'token认证失败')
         except jwt.InvalidTokenError as tr: 
-            logging.error('非法的token')
+            Log.error('非法的token')
             return (2, '非法的token')
 

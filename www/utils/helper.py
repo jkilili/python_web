@@ -1,6 +1,22 @@
 #helper.py
 
-import json, datetime, hashlib
+import json, datetime, hashlib, os
+
+"""判断文件夹是否存在 并创建 """
+def createFile(filePath):
+    if os.path.exists(filePath):
+        #print('%s:存在'%filePath)
+        return True
+    else:
+        try:
+            os.mkdir(filePath)
+            return True
+            #print('新建文件夹：%s'%filePath)
+        except Exception as e:
+            os.makedirs(filePath)
+            return True
+            #print('新建多层文件夹：%s' % filePath)
+
 
 def bytes_to_str(s, encoding='utf-8'):
     """Returns a str if a bytes object is given."""

@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import types, os, re, cgi, sys, time, datetime, functools, mimetypes, threading, logging, traceback, urllib
+import types, os, re, cgi, sys, time, datetime, functools, mimetypes, threading, traceback, urllib
 
 #################################################################
 # 实现事物数据接口, 实现request 数据和response数据的存储,

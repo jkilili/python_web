@@ -1,9 +1,10 @@
 #sys_api.py
-import json,logging,sys,datetime
+import json,sys,datetime
 from models.sys import SysRoles, next_id
 from common.apis import Page, APIValueError, APIResourceNotFoundError,get_page_index
-from log import ErrorLog, InfoLog
+from log import Log
 from utils.helper import gettime 
+from log import Log
 
 class RoleServices():
     @classmethod
@@ -27,7 +28,7 @@ class RoleServices():
             data = await SysRoles.find_all(where=q, args= arg, orderBy='create_time desc', limit=(p.offset, p.limit))
             return dict(page=page, pageSize = pagesize, total= total, rows= data)
         except Exception as ex:
-            logging.info('get_page is error:%s'%ex)
+            Log.error('get_page is error:%s'%ex)
             return dict(page=page, pageSize = pagesize, total= 0, rows= [])
 
     @classmethod

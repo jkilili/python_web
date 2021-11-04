@@ -1,14 +1,15 @@
 import asyncio
-import logging,datetime
+import datetime
 
 import aiomysql
+from log import Log
 
 def log(sql, args=()):
-    logging.info('SQL: %s' % sql)
+    Log.sql('SQL: %s' % sql)
 
 async def create_pool(loop, **kw):
 
-    logging.info('create database connection pool ...')
+    Log.info('create database connection pool ...')
     global __pool
     __pool = await aiomysql.create_pool(host = kw.get('host','localhost'),
         port = kw.get('port', 3306),
@@ -36,12 +37,11 @@ async def select(sql, args, size=None):
                 rs = await cur.fetchmany(size)
             else:
                 rs = await cur.fetchall()
-            logging.info('rows returned:%s' % len(rs))
         except BaseException as e:
             raise
         finally:
             conn.close()
-        logging.info('rows returned: %s' % len(rs))
+        Log.sql('rows returned: %s' % len(rs))
         return rs
 
 async def execute(sql, args, autocommit=True):
@@ -87,7 +87,7 @@ def resultConverter(ret, kw):
                          if isinstance(v,datetime.datetime ):
                              kw[r] = (kw[r]).replace('T','')
     except Exception as ex:
-        logging.info('resultConverter error:%s'%ex)
+        Log.error('resultConverter error:%s'%ex)
     return kw
             
 def _gen_sql(table_name, mappings):
@@ -233,13 +233,13 @@ class ModelMetaclass(type):
         if name == 'Model':
             return type.__new__(cls, name, bases, attrs)
         tableName = attrs.get('__table__', None) or name
-        logging.info('found model: %s (table: %s)' % (name, tableName))
+        #Log.debug('found model: %s (table: %s)' % (name, tableName))
         mappings = dict()
         fields = []
         primaryKey = None
         for k, v in attrs.items():
             if isinstance(v, Field):
-                logging.info('  found mapping: %s ==> %s' % (k, v))
+                #Log.debug('  found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
                 if v.primary_key:
                     # 找到主键:
@@ -290,7 +290,7 @@ class Model(dict, metaclass=ModelMetaclass):
             field = self.__mappings__[key]
             if field.default is not None:
                 value = field.default() if callable(field.default) else field.default
-                logging.debug('using default value for %s: %s' % (key, str(value)))
+                Log.warn('using default value for %s: %s' % (key, str(value)))
                 setattr(self, key, value)
         return value
 
@@ -412,7 +412,7 @@ class Model(dict, metaclass=ModelMetaclass):
         sql = 'insert into `%s` (%s) values (%s)' % (table, ','.join(['`%s`' % col for col in cols]), ','.join(['?' for i in range(len(cols))]))
         rows = await execute(sql, args)
         if rows != 1:
-            logging.warn('failed to insert record: affected rows: %s' % rows)
+            Log.warn('failed to insert record: affected rows: %s' % rows)
         return rows
 
     async def update(self, **kw):
@@ -445,7 +445,7 @@ class Model(dict, metaclass=ModelMetaclass):
         args.append(getattr(self, pk))
         rows = await execute('update `%s` set %s where %s=?' % (self.__table__, ','.join(L), pk), args)
         if rows != 1:
-            logging.warn('failed to insert record: affected rows: %s' % rows)
+            Log.warn('failed to insert record: affected rows: %s' % rows)
         return rows
 
     async def save(self):
@@ -453,7 +453,7 @@ class Model(dict, metaclass=ModelMetaclass):
         args.append(self.getValueOrDefault(self.__primary_key__))
         rows = await execute(self.__insert__, args)
         if rows != 1:
-            logging.warn('failed to insert record: affected rows: %s' % rows)
+            Log.warn('failed to insert record: affected rows: %s' % rows)
 
    #async def update(self):
    #    args = list(map(self.getValue, self.__fields__))
@@ -469,7 +469,7 @@ class Model(dict, metaclass=ModelMetaclass):
         sql.append('`%s`=?' % (self.__primary_key__))
         rows = await execute(' '.join(sql), args)
         if rows != 1:
-            logging.warn('failed to remove by primary key: affected rows: %s' % rows)
+            Log.warn('failed to remove by primary key: affected rows: %s' % rows)
 
     @classmethod
     async def removelist(cls, where=None, args=None):
@@ -489,5 +489,5 @@ class Model(dict, metaclass=ModelMetaclass):
 
         rows = await execute(' '.join(sql), args)
         if rows != 1:
-            logging.warn('failed to remove by primary key: affected rows: %s' % rows)
+            Log.warn('failed to remove by primary key: affected rows: %s' % rows)
         return rows

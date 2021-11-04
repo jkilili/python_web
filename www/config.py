@@ -1,6 +1,7 @@
 # config.py
 
 import config_env
+from os import path
 
 class Dict(dict):
     '''

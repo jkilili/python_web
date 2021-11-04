@@ -20,5 +20,13 @@ configs = {
         'host': '127.0.0.1',
         'port':'6379',
         'password':''
+        },
+    'log': {
+        'base':'./logs',
+        'info':'Info',
+        'warn':'Warn',
+        'error': 'Error',
+        'debug':'Debug',
+        'sql':'Sql'
         }
 }

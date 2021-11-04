@@ -1,5 +1,5 @@
 
-import json, logging, inspect, functools
+import json, inspect, functools
 
 def get_page_index(page_str):
     p = 1
