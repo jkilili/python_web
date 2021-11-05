@@ -3,7 +3,7 @@ python 构建web框架
 
 # 目前已实现的功能
 1. 实现JWT无会话验证权限
-2. logging 日志文件配置
+2. [logging 日志文件配置](https://github.com/jkilili/python_web/blob/master/www/logger.conf)
 3. 实现实体和数据库对应的增删改查功能。
 
 # 推荐[廖雪峰](http://www.liaoxuefeng.com/)的Python教程
